@@ -30,6 +30,14 @@ There is no dev server or build step. Open `index.html` directly in a browser (o
 
 **Live countdown without re-render**: a `setInterval` ticks every second and calls `updateLockedCards()`, which mutates the existing DOM nodes' countdown text and progress-bar width in place rather than rebuilding cards. This exists specifically to avoid retriggering each card's CSS entrance animation (`cardIn`), which previously caused a visible blink every second. When a message transitions from locked to unlocked, `render()` is called once for that transition and a toast is shown. Keep this distinction in mind when touching the timer logic — indiscriminately calling `render()` on every tick will reintroduce the blink bug.
 
+**Unlock detection**: the ticker detects the locked→unlocked transition by comparing against the `previouslyLocked` Set of message ids, not by diffing the DOM. Any code path that adds a still-locked message (currently only the form submit handler) must also add its id to `previouslyLocked`, or that message will never trigger the re-render/toast when it unlocks.
+
+**Date semantics**: `unlockDate` is a date-only `YYYY-MM-DD` string (straight from `<input type="date">`) and is always interpreted as *local* midnight by appending `'T00:00:00'` before parsing. `createdAt` is a full ISO timestamp. Keep that convention when comparing or parsing dates, since mixing it with UTC parsing shifts unlock times by the timezone offset.
+
+**`#emptyState` is reused**: `render()` clears the grid with `innerHTML = ''` and re-appends the same `emptyState` element it grabbed at startup. Don't recreate or query for it inside `render()`.
+
+**User text goes in via `textContent` only**: every piece of user text (name, message, preview) is inserted with `textContent`. Keep it that way; switching to `innerHTML` would let letter contents inject HTML.
+
 **Locked vs. unlocked cards**: a message is "locked" if `getTimeParts(unlockDate)` returns a non-null diff (i.e., unlock date is in the future). Locked cards show a countdown + progress bar; unlocked cards show a preview snippet and open a reveal modal on click.
 
 **Theming**: dark/light mode is applied by setting `data-theme` on `<html>`, which switches CSS custom property values. Initial theme comes from localStorage, falling back to `prefers-color-scheme`.
