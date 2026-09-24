@@ -16,6 +16,12 @@ No build system, no package manager, no dependencies, no tests. The entire app i
 
 There is no dev server or build step. Open `index.html` directly in a browser (or use a simple static file server if `file://` origin restrictions cause issues with local storage/fonts).
 
+## Repository
+
+- Git remote `origin` is the public GitHub repo https://github.com/mouli006/Future-Me; work happens on `main`.
+- `.claude/settings.local.json` is git-ignored (local Claude Code settings); don't commit it.
+- The repo-local git identity is `mouli006 <mdharan006@gmail.com>`. The owner chose to keep this real email visible on commits — don't switch it to a noreply address.
+
 ## Architecture
 
 **Persistence**: messages are stored client-side only, in `localStorage` under `futureMe.messages` (a JSON array of `{ id, name, message, unlockDate, createdAt }`). Theme preference is stored separately under `futureMe.theme`. There is no backend.
