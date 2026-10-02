@@ -25,6 +25,11 @@
   const messagesGrid = document.getElementById('messagesGrid');
   const emptyState = document.getElementById('emptyState');
   const msgCount = document.getElementById('msgCount');
+  const statsBar = document.getElementById('statsBar');
+  const statTotal = document.getElementById('statTotal');
+  const statLocked = document.getElementById('statLocked');
+  const statUnlocked = document.getElementById('statUnlocked');
+  const statNext = document.getElementById('statNext');
   const toast = document.getElementById('toast');
   const themeToggle = document.getElementById('themeToggle');
   const quoteText = document.getElementById('quoteText');
@@ -214,8 +219,21 @@
     return card;
   };
 
+  // Counts only change on add/delete/unlock, all of which call render(),
+  // so this runs from render() rather than the per-second ticker.
+  const renderStats = () => {
+    statsBar.hidden = messages.length === 0;
+    const locked = messages.filter((m) => getTimeParts(m.unlockDate));
+    statTotal.textContent = String(messages.length);
+    statLocked.textContent = String(locked.length);
+    statUnlocked.textContent = String(messages.length - locked.length);
+    const next = locked.map((m) => m.unlockDate).sort()[0];
+    statNext.textContent = next ? formatDate(next) : '—';
+  };
+
   const render = () => {
     messagesGrid.innerHTML = '';
+    renderStats();
     if (messages.length === 0) {
       messagesGrid.appendChild(emptyState);
       msgCount.textContent = '0';
